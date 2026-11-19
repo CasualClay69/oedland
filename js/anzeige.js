@@ -64,6 +64,7 @@ function rProfil(){let h='<h2>Fähigkeiten</h2><div class="card">';
  let sc=0,kl=0;for(const k in S.stats.scav)sc+=S.stats.scav[k];for(const k in S.stats.kills)kl+=S.stats.kills[k];
  h+=`<h2>Statistik</h2><div class="grid2"><div class="stat"><span class="mut sm">Plünderzüge</span><b>${fmt(sc)}</b></div><div class="stat"><span class="mut sm">Gegner besiegt</span><b>${fmt(kl)}</b></div><div class="stat"><span class="mut sm">Bosse besiegt</span><b>${Object.keys(S.stats.boss).length}/4</b></div><div class="stat"><span class="mut sm">Tode</span><b>${S.stats.deaths}</b></div><div class="stat"><span class="mut sm">Überfälle abgewehrt</span><b>${S.stats.raidsWon}</b></div><div class="stat"><span class="mut sm">Überfälle verloren</span><b>${S.stats.raidsLost}</b></div></div>`;
  h+=`<h2>Tagebuch</h2><div class="card logl" data-b="log"></div>`;
+ h+=appBereich();
  h+=`<h2>Spielstand</h2><div class="card"><div class="mut sm">Wird automatisch in diesem Browser gespeichert.</div><div class="row"><button class="btn red" data-a="reset">Spielstand löschen</button></div></div>`;
  return h}
 

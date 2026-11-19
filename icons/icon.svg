@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="himmel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a0e07"/>
+      <stop offset=".45" stop-color="#5a2410"/>
+      <stop offset=".72" stop-color="#c2581c"/>
+      <stop offset="1" stop-color="#f2982f"/>
+    </linearGradient>
+    <radialGradient id="glut" cx=".5" cy=".55" r=".5">
+      <stop offset="0" stop-color="#ffd27a" stop-opacity=".9"/>
+      <stop offset=".45" stop-color="#f2982f" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#f2982f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sonne" cx=".42" cy=".38" r=".7">
+      <stop offset="0" stop-color="#fff1c2"/>
+      <stop offset=".45" stop-color="#ffc35c"/>
+      <stop offset="1" stop-color="#e2731f"/>
+    </radialGradient>
+    <linearGradient id="boden" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a170c"/>
+      <stop offset="1" stop-color="#0d0805"/>
+    </linearGradient>
+    <clipPath id="sonnenclip"><circle cx="256" cy="250" r="118"/></clipPath>
+  </defs>
+
+  <!-- Himmel und Glut -->
+  <rect width="512" height="512" fill="url(#himmel)"/>
+  <circle cx="256" cy="262" r="250" fill="url(#glut)"/>
+
+  <!-- Staubschleier -->
+  <g fill="#ffd8a0" opacity=".14">
+    <rect x="0" y="118" width="512" height="5" rx="2.5"/>
+    <rect x="40" y="140" width="300" height="3" rx="1.5"/>
+    <rect x="210" y="96" width="260" height="3" rx="1.5"/>
+  </g>
+
+  <!-- Sonne mit Strahlenzeichen -->
+  <circle cx="256" cy="250" r="118" fill="url(#sonne)"/>
+  <g clip-path="url(#sonnenclip)" fill="#7a2c10" opacity=".88">
+    <!-- drei Flügel: je 60°, Innenradius 34, Außenradius 104 -->
+    <path d="M256 250 m0 -34 A34 34 0 0 1 285.4 233 L346.1 198 A104 104 0 0 0 256 146 Z" transform="rotate(-30 256 250)"/>
+    <path d="M256 250 m0 -34 A34 34 0 0 1 285.4 233 L346.1 198 A104 104 0 0 0 256 146 Z" transform="rotate(90 256 250)"/>
+    <path d="M256 250 m0 -34 A34 34 0 0 1 285.4 233 L346.1 198 A104 104 0 0 0 256 146 Z" transform="rotate(210 256 250)"/>
+    <circle cx="256" cy="250" r="22"/>
+  </g>
+  <circle cx="256" cy="250" r="118" fill="none" stroke="#fff3c8" stroke-opacity=".5" stroke-width="3"/>
+
+  <!-- Zerfallene Stadt (Silhouette) -->
+  <path fill="#1f1009" d="M0 330 L28 330 L28 286 L52 286 L52 300 L66 300 L66 262 L92 262 L98 270 L104 262 L104 318 L120 318 L120 296 L140 290 L150 296 L150 336 L168 336 L168 276 L178 270 L196 270 L196 230 L214 230 L222 240 L230 236 L230 330 L246 330 L246 304 L262 304 L262 318 L282 318 L282 248 L300 248 L300 236 L312 244 L318 236 L318 312 L336 312 L336 282 L352 274 L364 282 L364 326 L382 326 L382 256 L410 256 L410 268 L420 260 L420 300 L440 300 L440 278 L462 278 L470 290 L478 284 L478 322 L512 322 L512 512 L0 512 Z"/>
+  <!-- leere Fenster, in denen noch Glut schimmert -->
+  <g fill="#f2982f" opacity=".55">
+    <rect x="72" y="274" width="6" height="8"/><rect x="86" y="274" width="6" height="8"/><rect x="72" y="292" width="6" height="8"/>
+    <rect x="202" y="244" width="6" height="8"/><rect x="202" y="262" width="6" height="8"/><rect x="216" y="262" width="6" height="8"/>
+    <rect x="288" y="262" width="6" height="8"/><rect x="302" y="280" width="6" height="8"/><rect x="390" y="270" width="6" height="8"/>
+    <rect x="390" y="288" width="6" height="8"/><rect x="404" y="288" width="6" height="8"/>
+  </g>
+
+  <!-- Boden mit Dünen -->
+  <path fill="url(#boden)" d="M0 352 Q90 330 180 350 T360 346 T512 340 L512 512 L0 512 Z"/>
+  <path fill="#120a06" d="M0 400 Q120 380 250 398 T512 392 L512 512 L0 512 Z"/>
+
+  <!-- Einsamer Wanderer mit Rucksack -->
+  <g fill="#0b0604" transform="translate(338 300)">
+    <circle cx="20" cy="8" r="7.5"/>
+    <path d="M12 16 Q20 13 28 16 L31 44 L26 46 L25 70 L20 70 L19 50 L17 70 L12 70 L12 46 L9 44 Z"/>
+    <rect x="25" y="18" width="10" height="20" rx="3"/>
+    <path d="M7 22 L-6 52 L-3 53 L10 26 Z"/>
+  </g>
+
+  <!-- Warnstreifen -->
+  <g>
+    <rect x="0" y="456" width="512" height="56" fill="#f2982f"/>
+    <g fill="#140b06">
+      <path d="M-40 512 L4 456 L36 456 L-8 512 Z"/><path d="M24 512 L68 456 L100 456 L56 512 Z"/>
+      <path d="M88 512 L132 456 L164 456 L120 512 Z"/><path d="M152 512 L196 456 L228 456 L184 512 Z"/>
+      <path d="M216 512 L260 456 L292 456 L248 512 Z"/><path d="M280 512 L324 456 L356 456 L312 512 Z"/>
+      <path d="M344 512 L388 456 L420 456 L376 512 Z"/><path d="M408 512 L452 456 L484 456 L440 512 Z"/>
+      <path d="M472 512 L516 456 L548 456 L504 512 Z"/>
+    </g>
+    <rect x="0" y="452" width="512" height="5" fill="#0b0604" opacity=".6"/>
+  </g>
+</svg>

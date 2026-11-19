@@ -23,6 +23,11 @@ function act(a,v,el){switch(a){
  case 'claim':claim();break;
  case 'trade':trade(+v);break;
  case 'modal':$('#modal').classList.add('hidden');break;
+ case 'install':appInstallieren();return;
+ case 'export':spielstandSichern();return;
+ case 'import':spielstandLaden();return;
+ case 'update':aktualisiereApp();return;
+ case 'spaeter':updateSpaeter=true;$('#modal').classList.add('hidden');return;
  case 'reset':if(el.dataset.sure){try{localStorage.removeItem(KEY)}catch(e){}S=fresh();render();toast('Neues Spiel gestartet.')}else{el.dataset.sure=1;el.textContent='Wirklich löschen? Nochmal tippen'}return;
 }save()}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;act(b.dataset.a,b.dataset.v,b)});
