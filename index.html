@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ödland – Überleben nach dem Fall</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#13110f;--panel:#1d1915;--panel2:#262019;--line:#3a3027;--text:#ebe2d4;--mut:#9b8e7d;--acc:#e3892b;--acc2:#a9551b;--good:#86b85e;--bad:#d4553f;--blue:#5aa0c8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(70px + env(safe-area-inset-bottom));background-image:radial-gradient(ellipse at top,#241c14 0%,var(--bg) 60%);background-attachment:fixed;min-height:100vh}
+header{position:sticky;top:0;z-index:5;background:rgba(19,17,15,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
+.wrap{max-width:640px;margin:0 auto}
+.top{display:flex;align-items:center;gap:12px}
+h1{font-family:'Special Elite',monospace;font-size:22px;margin:0;color:var(--acc);letter-spacing:2px;text-shadow:0 0 12px rgba(227,137,43,.35)}
+.hp{flex:1;display:flex;align-items:center;gap:8px}
+.hp .bar{flex:1}
+#hpt{font-size:12px;color:var(--mut);min-width:64px;text-align:right;font-variant-numeric:tabular-nums}
+.bar{height:8px;background:#2c241d;border-radius:4px;overflow:hidden;border:1px solid #3d3229}
+.bar .fill{height:100%;width:0;background:var(--acc);transition:width .2s linear}
+.bar.red .fill{background:linear-gradient(90deg,#b8402e,#e0644a)}
+.bar.xp .fill{background:linear-gradient(90deg,#5c8a3e,#8fc265)}
+.bar.thin{height:4px;border:0}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:3px 9px;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.actbox{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.actbox .bar{grid-column:1/-1}
+#actL{font-weight:600;font-size:14px}
+#actS{min-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{padding:12px;max-width:640px;margin:0 auto}
+h2{font-family:'Special Elite',monospace;font-size:18px;color:var(--acc);margin:22px 4px 8px;font-weight:normal;letter-spacing:1px}
+h2:first-child{margin-top:4px}
+h3{margin:0 0 6px;font-size:15px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.card.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+.card.lock{opacity:.5}
+.ih{display:flex;gap:10px;align-items:flex-start}
+.ic{font-size:26px;line-height:1;width:34px;text-align:center;flex:none}
+.ih>div{flex:1;min-width:0}
+.lv{font-size:12px;color:var(--mut);margin-left:4px}
+.mut{color:var(--mut)}.sm{font-size:12.5px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap}
+.costs{display:flex;flex-wrap:wrap;gap:4px}
+.c{font-size:12.5px;background:#2a231c;border-radius:6px;padding:2px 6px;font-variant-numeric:tabular-nums}
+.c.no{color:var(--bad);background:#33201b}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;padding:9px 14px;font:inherit;font-weight:600;font-size:14px;cursor:pointer;min-height:40px;touch-action:manipulation}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.acc{background:linear-gradient(#e8933a,#c86e22);border-color:#e3892b;color:#1a120a}
+.btn.red{background:#4a2018;border-color:#7a3426;color:#ffc9bd}
+.btn.sm{padding:5px 10px;min-height:32px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ok{background:#2c3a22;border-color:#4d6a37;color:#c6e6a8}
+.loot{font-size:13px;margin-top:4px}
+.quest{border-color:#6b4a26;background:linear-gradient(135deg,#2a1f14,#1d1915)}
+.quest .qh{font-size:14px}
+.quest p{margin:6px 0;font-style:italic;font-size:13.5px}
+.goal{font-weight:600;font-size:14px}
+.rates{display:flex;flex-wrap:wrap;gap:6px}
+.warn{color:var(--bad);font-weight:600;font-size:13px;margin-top:6px}
+.jobs .jr{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.jobs .jr:first-child{border-top:0}
+.jr .jn{flex:1;min-width:0}
+.jr .cnt{width:26px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.arena{border-color:#7a3426;background:linear-gradient(#24170f,#1d1915)}
+.fighters{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.fighter .nm{font-weight:700;font-size:14px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fighter .sm{margin-top:3px;font-variant-numeric:tabular-nums}
+.vs{font-family:'Special Elite',monospace;color:var(--acc);font-size:18px}
+.flog{margin-top:10px;font-size:12.5px;color:var(--mut);min-height:96px;font-family:ui-monospace,Menlo,monospace;line-height:1.5}
+.flog div:first-child{color:var(--text)}
+.sk{margin-bottom:12px}
+.sk .row{margin:0 0 4px}
+.logl div{font-size:13px;padding:5px 0;border-top:1px solid var(--line)}
+.logl div:first-child{border-top:0}
+.g{color:var(--good)}.b{color:var(--bad)}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:6;background:rgba(22,19,16,.98);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav .in{display:flex;max-width:640px;width:100%}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:8px 0 9px;font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;position:relative}
+nav button span{font-size:21px;line-height:1.1}
+nav button.act{color:var(--acc)}
+nav button.act::before{content:"";position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--acc);border-radius:2px}
+nav .dot{position:absolute;top:6px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--bad)}
+#toasts{position:fixed;left:0;right:0;bottom:calc(80px + env(safe-area-inset-bottom));z-index:9;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{background:#2b2219;border:1px solid var(--acc2);color:var(--text);padding:8px 14px;border-radius:20px;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,.5);animation:tin .25s ease-out;max-width:90vw;text-align:center}
+.toast.good{border-color:#4d6a37}.toast.bad{border-color:#7a3426}
+@keyframes tin{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal.hidden{display:none}
+.mbox{background:var(--panel);border:1px solid var(--acc2);border-radius:14px;padding:18px;max-width:420px;width:100%}
+.mbox h3{font-family:'Special Elite',monospace;color:var(--acc);font-size:20px;font-weight:normal}
+.tog{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer}
+.sw{width:38px;height:22px;border-radius:11px;background:#3a3027;position:relative;flex:none;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#bbb;transition:.2s}
+.sw.on{background:var(--acc2)}.sw.on::after{left:19px;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--panel2);border-radius:8px;padding:8px 10px}
+.stat b{display:block;font-size:17px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><h1>ÖDLAND</h1><div class="hp"><div class="bar red"><div id="hpf" class="fill"></div></div><span id="hpt"></span></div></div>
+  <div id="res" class="chips"></div>
+  <div class="actbox"><div><div id="actL"></div><div id="actS" class="mut sm"></div></div><button id="actX" class="btn sm" data-a="stop">Stopp</button><div class="bar thin"><div id="actB" class="fill"></div></div></div>
+</div></header>
+<main id="main"></main>
+<nav><div class="in" id="nav"></div></nav>
+<div id="toasts"></div>
+<div id="modal" class="modal hidden"><div class="mbox" id="mbox"></div></div>
+
+<script>
+"use strict";
+// ================= DATEN =================
+const R={schrott:['Schrott','🔩'],wasser:['Wasser','💧'],nahrung:['Nahrung','🥫'],stoff:['Stoff','🧵'],chemie:['Chemie','🧪'],elektronik:['Elektronik','🔌'],kronkorken:['Kronkorken','🪙'],munition:['Munition','🔸'],verband:['Verbände','🩹'],medkit:['Medkits','💊'],kern:['Fusionskerne','⚛️']};
+const SK={plundern:['Plündern','🔦'],handwerk:['Handwerk','🔧'],kampf:['Kampf','⚔️']};
+const XPT=[0,0];for(let l=2;l<=100;l++)XPT[l]=XPT[l-1]+Math.floor(20*Math.pow(l-1,1.5));
+
+const ZS=[
+ {id:'halde',n:'Müllhalde',i:'🗑️',d:'Berge aus Müll. Hier fängt jeder an.',lvl:1,t:4,xp:5,loot:[['schrott',1,3,1],['stoff',1,1,.35],['kronkorken',1,2,.3]]},
+ {id:'vorstadt',n:'Verlassene Vorstadt',i:'🏚️',d:'Leere Häuser, volle Keller – manchmal.',lvl:5,t:6,xp:12,loot:[['schrott',2,4,.8],['stoff',1,2,.5],['nahrung',1,3,.5],['wasser',1,3,.4],['kronkorken',1,4,.5]]},
+ {id:'tanke',n:'Ausgebrannte Tankstelle',i:'⛽',d:'Riecht nach Benzin und Chemie.',lvl:10,t:8,xp:22,loot:[['chemie',1,2,.6],['schrott',2,5,.7],['nahrung',1,3,.4],['kronkorken',2,6,.6]]},
+ {id:'klinik',n:'Krankenhausruine',i:'🏥',d:'Medizin – falls die Ghule etwas übrig gelassen haben.',lvl:15,t:10,xp:35,loot:[['chemie',1,3,.7],['stoff',2,4,.6],['verband',1,2,.35],['medkit',1,1,.08]]},
+ {id:'elektro',n:'Elektronikmarkt',i:'📺',d:'Kaputte Fernseher voller wertvoller Platinen.',lvl:20,t:12,xp:50,loot:[['elektronik',1,2,.6],['schrott',3,7,.8],['kronkorken',3,8,.5]]},
+ {id:'bunker',n:'Militärbunker',i:'🪖',d:'Die Armee hat viel zurückgelassen.',lvl:30,t:15,xp:80,loot:[['munition',3,8,.7],['elektronik',1,3,.5],['medkit',1,1,.2],['kronkorken',5,12,.6]]},
+ {id:'krater',n:'Strahlenkrater',i:'☢️',d:'Tödlich ohne Schutz – aber hier liegen Fusionskerne.',lvl:40,t:20,xp:130,need:'geiger',loot:[['kern',1,1,.12],['elektronik',2,4,.6],['chemie',3,5,.6]]},
+];
+const EN={
+ ratte:{n:'Riesenratte',i:'🐀',hp:12,atk:3,def:0,spd:1.6,xp:6,loot:[['nahrung',1,1,.4],['stoff',1,1,.2]]},
+ hund:{n:'Wilder Hund',i:'🐕',hp:20,atk:5,def:0,spd:1.4,xp:10,loot:[['nahrung',1,2,.5]]},
+ pluenderer:{n:'Plünderer',i:'🥷',hp:35,atk:7,def:1,spd:1.8,xp:18,loot:[['kronkorken',2,6,.8],['schrott',2,5,.5],['munition',1,3,.3]]},
+ ghul:{n:'Ghul',i:'🧟',hp:45,atk:8,def:2,spd:2,xp:24,loot:[['stoff',1,3,.5],['chemie',1,1,.2]]},
+ kriecher:{n:'Sumpfkriecher',i:'🦎',hp:80,atk:12,def:4,spd:1.7,xp:45,loot:[['chemie',1,3,.6],['nahrung',2,3,.4]]},
+ mutant:{n:'Mutant',i:'👹',hp:120,atk:16,def:5,spd:2.2,xp:65,loot:[['chemie',2,4,.5],['kronkorken',5,12,.6],['verband',1,1,.2],['elektronik',1,1,.1]]},
+ sumpfmutter:{n:'Sumpfmutter',i:'🐙',hp:700,atk:22,def:6,spd:2.3,xp:600,boss:1,loot:[['kronkorken',80,120,1],['chemie',20,30,1],['medkit',2,3,1]]},
+ spinne:{n:'Tunnelspinne',i:'🕷️',hp:160,atk:19,def:7,spd:1.5,xp:90,loot:[['stoff',3,6,.6],['chemie',2,4,.4]]},
+ wildghul:{n:'Wilder Ghul',i:'💀',hp:200,atk:22,def:8,spd:1.8,xp:110,loot:[['elektronik',1,2,.4],['kronkorken',8,15,.6]]},
+ leuchtghul:{n:'Leuchtender Ghul',i:'🌟',hp:1400,atk:34,def:10,spd:2,xp:1200,boss:1,loot:[['kronkorken',150,250,1],['elektronik',10,15,1],['medkit',3,4,1]]},
+ raider:{n:'Raider',i:'🔫',hp:260,atk:28,def:11,spd:1.9,xp:150,loot:[['munition',4,10,.7],['kronkorken',10,25,.7],['schrott',5,12,.5]]},
+ veteran:{n:'Raider-Veteran',i:'🎖️',hp:340,atk:34,def:14,spd:2,xp:200,loot:[['munition',6,14,.7],['elektronik',1,3,.4],['medkit',1,1,.15]]},
+ varga:{n:'Kriegsherr Varga',i:'☠️',hp:2000,atk:48,def:16,spd:2.2,xp:2500,boss:1,loot:[['kronkorken',400,600,1],['elektronik',20,30,1],['kern',1,1,1]]},
+ bestie:{n:'Strahlenbestie',i:'🐗',hp:480,atk:44,def:18,spd:1.9,xp:300,loot:[['kern',1,1,.08],['elektronik',2,4,.5],['chemie',3,6,.5]]},
+ behemoth:{n:'Behemoth',i:'🦍',hp:650,atk:55,def:22,spd:2.4,xp:420,loot:[['kern',1,1,.12],['kronkorken',20,40,.7]]},
+ koloss:{n:'Der Koloss',i:'🗿',hp:6000,atk:75,def:26,spd:2.6,xp:8000,boss:1,loot:[['kern',5,5,1],['kronkorken',2000,2000,1]]},
+};
+const FZ=[
+ {id:'rand',n:'Ödland-Rand',i:'🌵',lvl:1,en:['ratte','hund']},
+ {id:'highway',n:'Highway 9',i:'🛣️',lvl:5,en:['hund','pluenderer','ghul']},
+ {id:'sumpf',n:'Mutantensumpf',i:'🌫️',lvl:12,need:'gasmaske',en:['kriecher','mutant'],boss:'sumpfmutter'},
+ {id:'metro',n:'Metro-Tunnel',i:'🚇',lvl:20,need:'lampe',en:['spinne','wildghul'],boss:'leuchtghul'},
+ {id:'festung',n:'Raider-Festung',i:'🏴',lvl:28,en:['raider','veteran'],boss:'varga'},
+ {id:'krater',n:'Der Krater',i:'☢️',lvl:38,need:'geiger',en:['bestie','behemoth'],boss:'koloss'},
+];
+const BOSS_KILLS=15;
+const IT={
+ knueppel:{n:'Rohrknüppel',i:'🏏',typ:'waffe',min:3,max:6,spd:1.4,lvl:1,wb:1,cost:{schrott:10},t:3,xp:8},
+ nagelbrett:{n:'Nagelbrett',i:'🪵',typ:'waffe',min:5,max:9,spd:1.5,lvl:4,wb:1,cost:{schrott:25,stoff:5},t:5,xp:20},
+ machete:{n:'Machete',i:'🔪',typ:'waffe',min:8,max:14,spd:1.3,lvl:9,wb:2,cost:{schrott:60,stoff:10},t:8,xp:45},
+ rohrpistole:{n:'Rohrpistole',i:'🔫',typ:'waffe',min:13,max:21,spd:1.6,ammo:1,lvl:14,wb:2,cost:{schrott:80,chemie:10},t:10,xp:70},
+ schrotflinte:{n:'Schrotflinte',i:'💥',typ:'waffe',min:26,max:42,spd:2,ammo:1,lvl:22,wb:3,cost:{schrott:150,chemie:25,elektronik:5},t:14,xp:130},
+ jagdgewehr:{n:'Jagdgewehr',i:'🎯',typ:'waffe',min:34,max:50,spd:1.8,ammo:1,lvl:30,wb:4,cost:{schrott:250,elektronik:15,chemie:30},t:18,xp:220},
+ laser:{n:'Lasergewehr',i:'🔆',typ:'waffe',min:45,max:70,spd:1.3,lvl:40,wb:5,cost:{elektronik:60,kern:3,chemie:50},t:25,xp:400},
+ lumpen:{n:'Lumpenkleidung',i:'👕',typ:'ruestung',def:1,hp:5,lvl:1,wb:1,cost:{stoff:8},t:3,xp:8},
+ weste:{n:'Lederweste',i:'🦺',typ:'ruestung',def:3,hp:15,lvl:6,wb:1,cost:{stoff:25,schrott:10},t:6,xp:30},
+ reifen:{n:'Reifenpanzer',i:'🛞',typ:'ruestung',def:6,hp:30,lvl:12,wb:2,cost:{schrott:80,stoff:20},t:10,xp:60},
+ schrottr:{n:'Schrottrüstung',i:'🛡️',typ:'ruestung',def:10,hp:50,lvl:20,wb:3,cost:{schrott:180,chemie:20},t:14,xp:120},
+ kampfr:{n:'Kampfrüstung',i:'🥋',typ:'ruestung',def:15,hp:80,lvl:28,wb:4,cost:{schrott:250,stoff:60,elektronik:20},t:18,xp:200},
+ power:{n:'Power-Rüstung',i:'🤖',typ:'ruestung',def:24,hp:140,lvl:40,wb:5,cost:{schrott:500,elektronik:80,kern:5},t:30,xp:450},
+ rucksack:{n:'Rucksack',i:'🎒',typ:'tool',d:'Plündern 15 % schneller',lvl:3,wb:1,cost:{stoff:20},t:5,xp:20},
+ brecheisen:{n:'Brecheisen',i:'🪛',typ:'tool',d:'+20 % Beute-Chance beim Plündern',lvl:8,wb:2,cost:{schrott:50},t:6,xp:35},
+ gasmaske:{n:'Gasmaske',i:'😷',typ:'tool',d:'Zugang zum Mutantensumpf',lvl:10,wb:2,cost:{stoff:20,chemie:15},t:8,xp:50},
+ lampe:{n:'Stirnlampe',i:'🔦',typ:'tool',d:'Zugang zu den Metro-Tunneln',lvl:16,wb:3,cost:{schrott:40,elektronik:5,chemie:10},t:10,xp:80},
+ geiger:{n:'Geigerzähler',i:'📟',typ:'tool',d:'Zugang zum Strahlenkrater',lvl:35,wb:4,cost:{elektronik:30,schrott:100},t:12,xp:150},
+ c_verband:{n:'Verband',i:'🩹',typ:'verbr',gives:{verband:1},lvl:1,wb:1,cost:{stoff:3},t:2,xp:3},
+ c_munition:{n:'Munition',i:'🔸',typ:'verbr',gives:{munition:5},lvl:10,wb:2,cost:{schrott:4,chemie:1},t:3,xp:6},
+ c_medkit:{n:'Medkit',i:'💊',typ:'verbr',gives:{medkit:1},lvl:15,wb:3,cost:{chemie:4,stoff:2,verband:1},t:5,xp:15},
+};
+const BU={
+ werkbank:{n:'Werkbank',i:'🔧',max:5,costs:[{schrott:15},{schrott:60,stoff:15},{schrott:200,chemie:30},{schrott:400,elektronik:25,chemie:40},{schrott:800,elektronik:60,kern:1}],d:'Jede Stufe schaltet neue Baupläne frei.'},
+ filter:{n:'Wasserfilter',i:'💧',cost:{schrott:25,stoff:5},d:'+0,2 Wasser/s pro Stufe',req:['werkbank',1]},
+ garten:{n:'Gemüsegarten',i:'🥬',cost:{schrott:20,wasser:25},d:'+0,15 Nahrung/s pro Stufe',req:['werkbank',1]},
+ baracke:{n:'Baracke',i:'🛏️',cost:{schrott:50,stoff:20},d:'+2 Plätze für Überlebende',req:['werkbank',2]},
+ kranken:{n:'Krankenstation',i:'🏥',cost:{schrott:60,chemie:15},d:'+0,5 HP/s Heilung – auch im Kampf',req:['werkbank',2]},
+ mauer:{n:'Schutzmauer',i:'🧱',cost:{schrott:80},d:'+10 Verteidigung gegen Überfälle',req:['werkbank',2]},
+ funk:{n:'Funkturm',i:'📡',max:3,cost:{schrott:150,elektronik:8},d:'Lockt Händler an (mehr Angebote pro Stufe) und +1 Platz',req:['werkbank',3]},
+ labor:{n:'Chemielabor',i:'⚗️',cost:{schrott:100,chemie:20,elektronik:3},d:'+0,03 Chemie/s, schaltet Chemiker frei',req:['werkbank',3]},
+ generator:{n:'Generator',i:'⚡',cost:{schrott:200,chemie:30,elektronik:15},d:'+0,02 Elektronik/s, schaltet Bastler frei',req:['werkbank',4]},
+};
+const JOBS={
+ sammler:{n:'Sammler',i:'🔩',d:'+0,25 Schrott/s',prod:{schrott:.25}},
+ traeger:{n:'Wasserträger',i:'💧',d:'+0,2 Wasser/s',prod:{wasser:.2}},
+ gaertner:{n:'Gärtner',i:'🥬',d:'+0,2 Nahrung/s',prod:{nahrung:.2},req:'garten'},
+ naeher:{n:'Lumpensammler',i:'🧵',d:'+0,08 Stoff/s',prod:{stoff:.08}},
+ chemiker:{n:'Chemiker',i:'🧪',d:'+0,05 Chemie/s',prod:{chemie:.05},req:'labor'},
+ bastler:{n:'Bastler',i:'🔌',d:'+0,02 Elektronik/s',prod:{elektronik:.02},req:'generator'},
+ wache:{n:'Wache',i:'🛡️',d:'+6 Verteidigung'},
+};
+const TR=[
+ {l:1,g:{schrott:25},t:{kronkorken:5}},{l:1,g:{nahrung:25},t:{kronkorken:6}},{l:1,g:{wasser:25},t:{kronkorken:6}},
+ {l:1,g:{kronkorken:15},t:{munition:10}},{l:1,g:{kronkorken:12},t:{verband:3}},
+ {l:2,g:{kronkorken:25},t:{chemie:5}},{l:2,g:{kronkorken:20},t:{stoff:10}},{l:2,g:{kronkorken:45},t:{medkit:1}},
+ {l:3,g:{kronkorken:60},t:{elektronik:2}},{l:3,g:{kronkorken:800},t:{kern:1}},
+];
+const NAMES=['Mara','Jonas','Rex','Elke','Bolt','Nina','Kurt','Zora','Fritz','Ida','Hagen','Lotte','Sepp','Vera','Ole','Tilda','Brick','Hanne','Milo','Greta','Dusty','Rosa','Knut','Yara'];
+const Q=[
+ {t:'Erwachen',s:'Du kriechst aus einem eingestürzten Keller. Die Welt ist tot – aber auf der Müllhalde findet man immer etwas.',g:'Plündere 5× die Müllhalde',c:()=>(S.stats.scav.halde||0)>=5,r:{kronkorken:10}},
+ {t:'Ein Ort zum Arbeiten',s:'Mit Schrott allein überlebt niemand. Eine Werkbank wäre ein Anfang.',g:'Baue eine Werkbank (Basis)',c:()=>lv('werkbank')>=1,r:{schrott:15}},
+ {t:'Bewaffnet',s:'Draußen knurrt etwas. Zeit, sich zu wehren.',g:'Baue eine Waffe und rüste sie aus',c:()=>!!S.eq.waffe,r:{verband:3}},
+ {t:'Erste Jagd',s:'Die Ratten am Ödland-Rand werden frech.',g:'Besiege 5 Gegner am Ödland-Rand',c:()=>(S.stats.kills.rand||0)>=5,r:{kronkorken:20}},
+ {t:'Wasser ist Leben',s:'Wer überleben will, braucht eine eigene Versorgung.',g:'Baue Wasserfilter und Gemüsegarten',c:()=>lv('filter')>=1&&lv('garten')>=1,r:{stoff:15}},
+ {t:'Nicht mehr allein',s:'Ein Rauchsignal am Horizont. Vielleicht gibt es noch andere.',g:'Nimm einen Überlebenden auf',c:()=>S.surv.total>=1,r:{nahrung:30,wasser:30}},
+ {t:'Aasgeier',s:'Je besser du plünderst, desto weiter kannst du gehen.',g:'Erreiche Plündern-Level 10',c:()=>lvl('plundern')>=10,r:{kronkorken:50}},
+ {t:'Giftige Luft',s:'Hinter dem Highway liegt der Sumpf. Ohne Maske stirbst du dort.',g:'Baue eine Gasmaske',c:()=>!!S.owned.gasmaske,r:{chemie:10}},
+ {t:'Die Mutter des Sumpfes',s:'Die Überlebenden flüstern von einer riesigen Kreatur im Nebel.',g:'Besiege die Sumpfmutter',c:()=>!!S.stats.boss.sumpfmutter,r:{kronkorken:100}},
+ {t:'Signal',s:'Ein Funkturm könnte Händler aus dem ganzen Ödland anlocken.',g:'Baue den Funkturm',c:()=>lv('funk')>=1,r:{elektronik:5}},
+ {t:'Licht im Tunnel',s:'Tief in der Metro glüht etwas. Es ist nicht freundlich.',g:'Besiege den Leuchtenden Ghul',c:()=>!!S.stats.boss.leuchtghul,r:{medkit:3}},
+ {t:'Der Kriegsherr',s:'Varga und seine Raider beherrschen die Gegend. Solange er lebt, ist niemand sicher.',g:'Besiege Kriegsherr Varga',c:()=>!!S.stats.boss.varga,r:{kronkorken:300}},
+ {t:'Ins Herz der Strahlung',s:'Der Krater ruft. Ohne Geigerzähler wäre es Selbstmord.',g:'Baue einen Geigerzähler',c:()=>!!S.owned.geiger,r:{medkit:3}},
+ {t:'Der Koloss',s:'Im Krater schläft das, was die alte Welt beendet hat.',g:'Besiege den Koloss',c:()=>!!S.stats.boss.koloss,r:{kern:3}},
+];
+
+// ================= ZUSTAND =================
+let S;
+function fresh(){return{res:{schrott:0,wasser:20,nahrung:20,stoff:0,chemie:0,elektronik:0,kronkorken:0,munition:0,verband:2,medkit:0,kern:0},xp:{plundern:0,handwerk:0,kampf:0},hp:60,eq:{waffe:null,ruestung:null},owned:{},b:{},surv:{total:0,jobs:{}},act:null,stats:{scav:{},kills:{},boss:{},crafted:{},deaths:0,raidsWon:0,raidsLost:0},q:0,log:[],last:Date.now(),raidT:300,autoHeal:true,tab:'basis',starving:false}}
+function merge(a,b){for(const k in b){const v=b[k];if(v&&typeof v==='object'&&!Array.isArray(v)&&a[k]&&typeof a[k]==='object'&&!Array.isArray(a[k]))merge(a[k],v);else a[k]=v}return a}
+const KEY='oedland-save-v1';
+function save(){S.last=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){S=fresh();try{const t=localStorage.getItem(KEY);if(t)merge(S,JSON.parse(t))}catch(e){}}
+
+// ================= HILFEN =================
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function fmt(n){n=Math.floor(n);if(n>=1e6)return(n/1e6).toFixed(1).replace('.',',')+'M';if(n>=1e4)return(n/1e3).toFixed(1).replace('.',',')+'k';return''+n}
+const dec=(n,d=2)=>(+n.toFixed(d)).toString().replace('.',',');
+const mmss=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const lv=b=>S.b[b]||0;
+function lvl(sk){const x=S.xp[sk];let l=1;while(l<99&&x>=XPT[l+1])l++;return l}
+const canPay=c=>Object.keys(c).every(k=>S.res[k]>=c[k]);
+const pay=c=>{for(const k in c)S.res[k]-=c[k]};
+const give=c=>{for(const k in c)S.res[k]+=c[k]};
+function lootStr(o){const s=Object.entries(o).filter(e=>e[1]>0).map(([k,v])=>R[k][1]+fmt(v)).join(' ');return s||'nichts'}
+function costHtml(c){return '<div class="costs">'+Object.entries(c).map(([k,v])=>`<span class="c" data-ck="${k}" data-cv="${v}">${R[k][1]} ${fmt(v)}</span>`).join('')+'</div>'}
+const cAttr=c=>`data-cost='${JSON.stringify(c)}'`;
+let dirty=false;const markDirty=()=>dirty=true;
+function log(m,c=''){S.log.unshift({m,c,t:Date.now()});if(S.log.length>60)S.log.length=60}
+function toast(m,c=''){const d=document.createElement('div');d.className='toast '+c;d.textContent=m;const T=$('#toasts');T.appendChild(d);while(T.children.length>3)T.firstChild.remove();setTimeout(()=>d.remove(),2800)}
+function msg(m,c){log(m,c);toast(m,c)}
+function weapon(){return S.eq.waffe?IT[S.eq.waffe]:{n:'Fäuste',min:1,max:3,spd:1.2}}
+function armor(){return S.eq.ruestung?IT[S.eq.ruestung]:{def:0,hp:0}}
+function maxHp(){return 60+(lvl('kampf')-1)*10+armor().hp}
+function gainXp(sk,n,off){const b=lvl(sk);S.xp[sk]+=n;const a=lvl(sk);if(a>b){log(`${SK[sk][1]} ${SK[sk][0]} erreicht Level ${a}!`,'g');if(!off)toast(`${SK[sk][1]} ${SK[sk][0]} Level ${a}!`,'good');markDirty()}}
+function bcost(id){const B=BU[id],l=lv(id);if(B.costs)return B.costs[l]||B.costs[B.costs.length-1];const o={};for(const k in B.cost)o[k]=Math.round(B.cost[k]*Math.pow(1.6,l));return o}
+const breq=id=>{const r=BU[id].req;return !r||lv(r[0])>=r[1]};
+function survCap(){return 1+lv('baracke')*2+lv('funk')}
+function idle(){let n=0;for(const j in S.surv.jobs)n+=S.surv.jobs[j];return S.surv.total-n}
+function recruitCost(){return{kronkorken:Math.round(15*Math.pow(1.7,S.surv.total))}}
+function defense(){return lv('mauer')*10+(S.surv.jobs.wache||0)*6+lvl('kampf')*2}
+function raidPower(){let b=0;for(const k in S.b)b+=S.b[k];return Math.round(8+b*5+S.surv.total*3)}
+function zoneOpen(z,sk){return lvl(sk)>=z.lvl&&(!z.need||S.owned[z.need])}
+
+// ================= SPIELLOGIK =================
+function rates(){const r={};const add=(k,v)=>{if(v)r[k]=(r[k]||0)+v};
+ add('wasser',lv('filter')*.2);add('nahrung',lv('garten')*.15);add('chemie',lv('labor')*.03);add('elektronik',lv('generator')*.02);
+ const eff=S.starving?.5:1;
+ for(const j in JOBS){const n=S.surv.jobs[j]||0;if(n&&JOBS[j].prod)for(const k in JOBS[j].prod)add(k,JOBS[j].prod[k]*n*eff)}
+ const up=S.surv.total*.06;add('nahrung',-up);add('wasser',-up);return r}
+function produce(dt){const r=rates();let st=false;for(const k in r){S.res[k]+=r[k]*dt;if(S.res[k]<0){S.res[k]=0;st=true}}
+ const was=S.starving;S.starving=st&&S.surv.total>0;if(was!==S.starving)markDirty()}
+
+function scavDur(z){return z.t*(S.owned.rucksack?.85:1)/(1+(lvl('plundern')-1)*.01)}
+function doScav(dt,off){const a=S.act,z=ZS.find(x=>x.id===a.id);if(!z){S.act=null;return}a.p+=dt;const d=scavDur(z);
+ while(a.p>=d){a.p-=d;const bonus=S.owned.brecheisen?1.2:1,got={};
+  for(const [k,mn,mx,c] of z.loot)if(Math.random()<Math.min(1,c*bonus)){const n=rnd(mn,mx);S.res[k]+=n;got[k]=(got[k]||0)+n}
+  if(Math.random()<.03){const n=rnd(3,10)*Math.ceil(z.lvl/5+1);S.res.kronkorken+=n;got.kronkorken=(got.kronkorken||0)+n;log(`📦 Versteckte Kiste in ${z.n}: +${n} 🪙`,'g');if(!off)toast(`📦 Versteckte Kiste! +${n} 🪙`,'good')}
+  S.stats.scav[z.id]=(S.stats.scav[z.id]||0)+1;a.last=lootStr(got);gainXp('plundern',z.xp,off)}}
+
+function doCraft(dt,off){const a=S.act,r=IT[a.id];
+ if(!a.paid){if(!canPay(r.cost)){if(!off)toast('Nicht genug Material.','bad');S.act=null;markDirty();return}pay(r.cost);a.paid=true}
+ a.p+=dt;if(a.p<r.t)return;a.p=0;a.paid=false;S.stats.crafted[a.id]=(S.stats.crafted[a.id]||0)+1;gainXp('handwerk',r.xp,off);
+ if(r.gives){give(r.gives);a.n=(a.n||0)+1}
+ else{S.owned[a.id]=1;if(r.typ==='waffe'||r.typ==='ruestung')S.eq[r.typ]=a.id;S.act=null;msg(`${r.i} ${r.n} fertig${r.typ==='tool'?'':' und ausgerüstet'}!`,'good');markDirty()}}
+
+function startFight(id,boss){S.act={type:'fight',id,ek:null,eh:0,pt:0,et:0,w:.6,boss:!!boss,fl:[]};render()}
+function flog(m){const a=S.act;if(!a||a.type!=='fight')return;a.fl.unshift(m);if(a.fl.length>6)a.fl.length=6}
+function spawn(){const a=S.act,z=FZ.find(x=>x.id===a.id);const k=a.boss?z.boss:z.en[rnd(0,z.en.length-1)];a.ek=k;a.eh=EN[k].hp;a.pt=0;a.et=.3;flog(`${EN[k].i} ${EN[k].n} taucht auf!`)}
+function heal(t,quiet){if(S.res[t]<1)return false;const m=maxHp();if(S.hp>=m)return false;S.res[t]--;const h=t==='medkit'?Math.round(m*.6):Math.round(30+m*.1);S.hp=Math.min(m,S.hp+h);flog(`${R[t][1]} +${h} HP`);return true}
+function autoHeal(){if(!S.autoHeal)return;const m=maxHp();if(S.hp>=m*.35)return;const vh=30+m*.1;
+ if(S.res.medkit>0&&(m-S.hp>vh*2||S.res.verband<1))heal('medkit');else if(S.res.verband>0)heal('verband');else heal('medkit')}
+function doFight(dt){const a=S.act;if(!a.ek){a.w-=dt;if(a.w<=0)spawn();return}
+ const e=EN[a.ek],w=weapon();a.pt+=dt;a.et+=dt;
+ if(a.pt>=w.spd){a.pt-=w.spd;let mn=w.min,mx=w.max;
+  if(w.ammo){if(S.res.munition>=1)S.res.munition--;else{mn=2;mx=4;if(!a.na){flog('🔸 Keine Munition – Kolbenhieb!');a.na=1}}}
+  if(Math.random()<.9){const d=Math.max(1,Math.round(rnd(mn,mx)*(1+(lvl('kampf')-1)*.02)-e.def));a.eh-=d;flog(`Du triffst: −${d}`)}else flog('Du verfehlst.');
+  if(a.eh<=0){kill(a,e);return}}
+ if(a.et>=e.spd){a.et-=e.spd;
+  if(Math.random()<.8){const d=Math.max(1,Math.round(e.atk*(.8+Math.random()*.4)-armor().def));S.hp-=d;flog(`${e.n} trifft dich: −${d}`)}else flog(`${e.n} verfehlt.`);
+  if(S.hp<=0){die(e);return}autoHeal()}}
+function kill(a,e){const k=a.ek,got={};for(const [r,mn,mx,c] of e.loot)if(Math.random()<c){const n=rnd(mn,mx);S.res[r]+=n;got[r]=(got[r]||0)+n}
+ S.stats.kills[a.id]=(S.stats.kills[a.id]||0)+1;gainXp('kampf',e.xp);flog(`✔ ${e.n} besiegt! ${lootStr(got)}`);a.last=lootStr(got);
+ if(e.boss){S.stats.boss[k]=(S.stats.boss[k]||0)+1;a.boss=false;msg(`🏆 ${e.n} besiegt! ${lootStr(got)}`,'good');markDirty()}
+ else if((S.stats.kills[a.id]===BOSS_KILLS)&&FZ.find(z=>z.id===a.id).boss){toast('⚠️ Ein Boss ist erschienen!','bad');markDirty()}
+ a.ek=null;a.w=1}
+function die(e){S.stats.deaths++;const lost=Math.floor(S.res.kronkorken*.1);S.res.kronkorken-=lost;S.hp=1;S.act=null;msg(`💀 ${e.n} hat dich niedergestreckt. Du schleppst dich zurück (−${lost} 🪙).`,'bad');markDirty()}
+
+function raid(){S.raidT=rnd(240,420);const p=Math.round(raidPower()*(.8+Math.random()*.4)),d=defense();
+ if(d>=p){const c=Math.round(p/2);S.res.kronkorken+=c;S.stats.raidsWon++;msg(`🛡️ Überfall abgewehrt! (${d} gegen ${p}) +${c} 🪙`,'good')}
+ else{const lost={};for(const k of['schrott','nahrung','wasser']){const n=Math.floor(S.res[k]*.2);S.res[k]-=n;lost[k]=n}S.stats.raidsLost++;msg(`🔥 Raider haben die Basis geplündert! (${d} gegen ${p}) Verloren: ${lootStr(lost)}`,'bad')}
+ markDirty()}
+
+function tick(dt,off){produce(dt);
+ const a=S.act;if(a){if(a.type==='scav')doScav(dt,off);else if(a.type==='craft')doCraft(dt,off);else if(a.type==='fight'&&!off)doFight(dt)}
+ const f=S.act&&S.act.type==='fight';S.hp=Math.min(maxHp(),S.hp+((f?0:1.5)+lv('kranken')*.5)*dt);
+ if(!off&&S.surv.total>0){S.raidT-=dt;if(S.raidT<=0)raid()}}
+function checkQuest(){const q=Q[S.q];const d=!!(q&&q.c());if(d!==S._qd){if(d)toast('📜 Auftrag erfüllt – Belohnung in der Basis abholen!','good');S._qd=d;markDirty()}}
+
+// ================= AKTIONEN =================
+function build(id){const B=BU[id],l=lv(id);if((B.max&&l>=B.max)||!breq(id))return;const c=bcost(id);if(!canPay(c))return;pay(c);S.b[id]=l+1;msg(`${B.i} ${B.n} → Stufe ${l+1}`,'good');render()}
+function recruit(){if(S.surv.total>=survCap())return;const c=recruitCost();if(!canPay(c))return;pay(c);S.surv.total++;msg(`👤 ${NAMES[rnd(0,NAMES.length-1)]} schließt sich dir an.`,'good');render()}
+function jobAdd(j,d){if(d>0&&idle()<1)return;if(d<0&&!(S.surv.jobs[j]>0))return;S.surv.jobs[j]=(S.surv.jobs[j]||0)+d;render()}
+function claim(){const q=Q[S.q];if(!q||!q.c())return;give(q.r);msg(`📜 „${q.t}“ abgeschlossen: ${lootStr(q.r)}`,'good');S.q++;S._qd=undefined;render()}
+function trade(i){const t=TR[i];if(!t||lv('funk')<t.l||!canPay(t.g))return;pay(t.g);give(t.t);toast(`Getauscht: ${lootStr(t.t)}`,'good')}
+function act(a,v,el){switch(a){
+ case 'tab':S.tab=v;render();window.scrollTo(0,0);break;
+ case 'scav':S.act={type:'scav',id:v,p:0,last:''};render();break;
+ case 'stop':S.act=null;render();break;
+ case 'craft':S.act={type:'craft',id:v,p:0,paid:false};render();break;
+ case 'equip':S.eq[IT[v].typ]=v;S.hp=Math.min(S.hp,maxHp());render();break;
+ case 'build':build(v);break;
+ case 'recruit':recruit();break;
+ case 'jobp':jobAdd(v,1);break;case 'jobm':jobAdd(v,-1);break;
+ case 'fight':startFight(v,false);break;case 'boss':startFight(v,true);break;
+ case 'heal':heal(v);break;
+ case 'auto':S.autoHeal=!S.autoHeal;render();break;
+ case 'claim':claim();break;
+ case 'trade':trade(+v);break;
+ case 'modal':$('#modal').classList.add('hidden');break;
+ case 'reset':if(el.dataset.sure){try{localStorage.removeItem(KEY)}catch(e){}S=fresh();render();toast('Neues Spiel gestartet.')}else{el.dataset.sure=1;el.textContent='Wirklich löschen? Nochmal tippen'}return;
+}save()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;act(b.dataset.a,b.dataset.v,b)});
+
+// ================= ANZEIGE =================
+const TABS=[['basis','🏚️','Basis'],['scav','🔦','Plündern'],['craft','🔧','Werkbank'],['fight','⚔️','Kampf'],['profil','👤','Profil']];
+function item(icon,title,lvTxt,desc,bottom,cls=''){return `<div class="card ${cls}"><div class="ih"><span class="ic">${icon}</span><div><b>${title}</b>${lvTxt?`<span class="lv">${lvTxt}</span>`:''}<div class="mut sm">${desc}</div></div></div>${bottom?`<div class="row">${bottom}</div>`:''}</div>`}
+
+function rBasis(){let h='';const q=Q[S.q];
+ if(q){const d=q.c();h+=`<div class="card quest"><div class="qh">📜 Auftrag ${S.q+1}/${Q.length}: <b>${q.t}</b></div><p class="mut">${q.s}</p><div class="goal">${d?'✅':'⬜'} ${q.g}</div><div class="row"><span class="mut sm">Belohnung: ${lootStr(q.r)}</span>${d?'<button class="btn acc" data-a="claim">Abholen</button>':''}</div></div>`}
+ else h+=`<div class="card quest"><div class="goal">🏆 Alle Aufträge erledigt!</div><p class="mut">Der Koloss ist gefallen. Das Ödland gehört dir – aber es ist noch längst nicht leer. Bau weiter, sammle weiter, überlebe.</p></div>`;
+ h+=`<div class="card"><h3>Versorgung</h3><div data-b="rates"></div></div>`;
+ h+='<h2>Unterschlupf</h2>';
+ for(const id in BU){const B=BU[id],l=lv(id),mx=B.max&&l>=B.max;
+  if(!breq(id)){h+=item(B.i,B.n,'',B.d,`<span class="mut sm">🔒 Benötigt ${BU[B.req[0]].n} Stufe ${B.req[1]}</span>`,'lock');continue}
+  const c=bcost(id);h+=item(B.i,B.n,`Stufe ${l}${B.max?'/'+B.max:''}`,B.d,mx?'<span class="mut sm">✓ Maximal ausgebaut</span>':`${costHtml(c)}<button class="btn acc" data-a="build" data-v="${id}" ${cAttr(c)}>${l?'Ausbauen':'Bauen'}</button>`)}
+ if(S.q>=5||S.surv.total>0){const cap=survCap(),rc=recruitCost();
+  h+=`<h2>Überlebende</h2><div class="card"><div class="row" style="margin-top:0"><div><b>${S.surv.total}/${cap}</b> Bewohner · <span class="mut">${idle()} untätig</span><div class="mut sm">Jeder verbraucht 0,06 🥫 und 0,06 💧 pro Sekunde.</div></div>${S.surv.total<cap?`<button class="btn acc" data-a="recruit" ${cAttr(rc)}>Aufnehmen 🪙${fmt(rc.kronkorken)}</button>`:'<span class="mut sm">Kein Platz – baue Baracken</span>'}</div>`;
+  if(S.surv.total>0){h+='<div class="jobs" style="margin-top:10px">';for(const j in JOBS){const J=JOBS[j];if(J.req&&!lv(J.req))continue;const n=S.surv.jobs[j]||0;
+   h+=`<div class="jr"><span class="ic" style="font-size:20px">${J.i}</span><div class="jn"><b>${J.n}</b><div class="mut sm">${J.d}</div></div><button class="btn sm" data-a="jobm" data-v="${j}" ${n?'':'disabled'}>−</button><span class="cnt">${n}</span><button class="btn sm" data-a="jobp" data-v="${j}" ${idle()>0?'':'disabled'}>+</button></div>`}
+   h+='</div>'}
+  h+='</div>';
+  if(S.surv.total>0)h+=`<h2>Verteidigung</h2><div class="card"><div class="grid2"><div class="stat"><span class="mut sm">Nächster Überfall</span><b data-b="raid"></b></div><div class="stat"><span class="mut sm">Verteidigung / Angreifer</span><b data-b="def"></b></div></div><div class="mut sm" style="margin-top:8px">Mauern, Wachen und dein Kampf-Level schützen die Basis. Verlierst du, rauben die Raider 20 % deiner Vorräte.</div></div>`}
+ if(lv('funk')>0){h+='<h2>Händler</h2>';TR.forEach((t,i)=>{if(lv('funk')<t.l)return;h+=`<div class="card" style="padding:10px 12px"><div class="row" style="margin:0"><span>${lootStr(t.g)} → <b>${lootStr(t.t)}</b></span><button class="btn sm" data-a="trade" data-v="${i}" ${cAttr(t.g)}>Tauschen</button></div></div>`})}
+ return h}
+
+function rScav(){let h=`<h2>Plünderziele</h2><div class="mut sm" style="margin:-4px 4px 10px">Plündern läuft automatisch weiter – auch wenn du die Seite schließt (bis zu 8 Std.).</div>`;
+ for(const z of ZS){const on=S.act&&S.act.type==='scav'&&S.act.id===z.id;const ok=zoneOpen(z,'plundern');
+  const info=`${z.d}<div class="loot">${z.loot.map(l=>R[l[0]][1]).join(' ')} · ${dec(scavDur(z),1)} s · +${z.xp} XP</div>`;
+  if(!ok){h+=item(z.i,z.n,'',info,`<span class="mut sm">🔒 Plündern-Level ${z.lvl}${z.need&&!S.owned[z.need]?' + '+IT[z.need].n:''}</span>`,'lock');continue}
+  h+=item(z.i,z.n,'',info,on?'<span class="sm" style="color:var(--acc)">● Aktiv</span><button class="btn" data-a="stop">Stopp</button>':`<span></span><button class="btn acc" data-a="scav" data-v="${z.id}">Plündern</button>`,on?'on':'')}
+ return h}
+
+function rCraft(){let h='';const sec=[['waffe','Waffen'],['ruestung','Rüstungen'],['tool','Werkzeuge'],['verbr','Verbrauchsgüter']];
+ if(!lv('werkbank'))return '<h2>Werkbank</h2><div class="card">🔒 Du brauchst zuerst eine <b>Werkbank</b>. Baue sie im Tab <b>Basis</b>.</div>';
+ for(const [typ,title] of sec){h+=`<h2>${title}</h2>`;
+  for(const id in IT){const r=IT[id];if(r.typ!==typ)continue;
+   let desc=typ==='waffe'?`⚔️ ${r.min}–${r.max} Schaden · ${dec(r.spd,1)} s${r.ammo?' · verbraucht 🔸':''}`:typ==='ruestung'?`🛡️ ${r.def} Rüstung · ❤️ +${r.hp} HP`:typ==='tool'?r.d:`ergibt ${lootStr(r.gives)} · ${r.t} s`;
+   const lock=lvl('handwerk')<r.lvl||lv('werkbank')<r.wb;
+   if(lock){h+=item(r.i,r.n,'',desc,`<span class="mut sm">🔒 Handwerk ${r.lvl} · Werkbank ${r.wb}</span>`,'lock');continue}
+   const on=S.act&&S.act.type==='craft'&&S.act.id===id;let bot;
+   if(on)bot=`<span class="sm" style="color:var(--acc)">● Wird gebaut${r.gives?' (wiederholt)':''}</span><button class="btn" data-a="stop">Stopp</button>`;
+   else if(S.owned[id]){bot=typ==='tool'?'<span class="g sm">✓ Im Besitz</span>':S.eq[typ]===id?'<span class="g sm">✓ Ausgerüstet</span>':`<span class="mut sm">Im Besitz</span><button class="btn" data-a="equip" data-v="${id}">Ausrüsten</button>`}
+   else bot=`${costHtml(r.cost)}<button class="btn acc" data-a="craft" data-v="${id}" ${cAttr(r.cost)}>${r.gives?'Herstellen':'Bauen'}</button>`;
+   h+=item(r.i,r.n,r.gives?'':`${r.t} s`,desc,bot,on?'on':'')}}
+ return h}
+
+function rFight(){let h='';const a=S.act&&S.act.type==='fight'?S.act:null;
+ if(a){const z=FZ.find(x=>x.id===a.id);h+=`<h2>${z.i} ${z.n}</h2><div class="card arena"><div class="fighters"><div class="fighter"><div class="nm">🧍 Du</div><div class="bar red"><div class="fill" data-w="php"></div></div><div class="sm mut" data-b="phpT"></div></div><div class="vs">VS</div><div class="fighter"><div class="nm" data-b="eN"></div><div class="bar red"><div class="fill" data-w="ehp"></div></div><div class="sm mut" data-b="ehT"></div></div></div><div class="flog" data-b="flog"></div>
+ <div class="row"><button class="btn sm" data-a="heal" data-v="verband" ${cAttr({verband:1})}>🩹 <span data-b="cnt:verband"></span></button><button class="btn sm" data-a="heal" data-v="medkit" ${cAttr({medkit:1})}>💊 <span data-b="cnt:medkit"></span></button><button class="btn red sm" data-a="stop">Fliehen</button></div></div>`}
+ h+=`<div class="card" style="padding:10px 12px"><div class="tog" data-a="auto"><span class="sw ${S.autoHeal?'on':''}"></span>Automatisch heilen (unter 35 % HP)</div><div class="mut sm" style="margin-top:6px">Waffe: <b>${weapon().n}</b> · Rüstung: <b>${S.eq.ruestung?IT[S.eq.ruestung].n:'keine'}</b> · 🔸 <span data-b="cnt:munition"></span></div></div>`;
+ h+='<h2>Kampfgebiete</h2>';
+ for(const z of FZ){const ok=zoneOpen(z,'kampf'),on=a&&a.id===z.id;const en=z.en.map(k=>EN[k].i+' '+EN[k].n).join(', ');
+  if(!ok){h+=item(z.i,z.n,'',en,`<span class="mut sm">🔒 Kampf-Level ${z.lvl}${z.need&&!S.owned[z.need]?' + '+IT[z.need].n:''}</span>`,'lock');continue}
+  const k=S.stats.kills[z.id]||0;let bossTxt='';
+  if(z.boss){const B=EN[z.boss];bossTxt=k>=BOSS_KILLS?`<div class="row"><span class="sm">👑 ${B.i} <b>${B.n}</b> · ${B.hp} HP${S.stats.boss[z.boss]?' <span class="g">✓</span>':''}</span><button class="btn red sm" data-a="boss" data-v="${z.id}">Herausfordern</button></div>`:`<div class="mut sm" style="margin-top:6px">👑 Boss erscheint nach ${BOSS_KILLS} Siegen (${k}/${BOSS_KILLS})</div>`}
+  h+=`<div class="card ${on?'on':''}"><div class="ih"><span class="ic">${z.i}</span><div><b>${z.n}</b><span class="lv">${k} Siege</span><div class="mut sm">${en}</div></div></div><div class="row"><span></span>${on?'<span class="sm" style="color:var(--acc)">● Kampf läuft</span>':`<button class="btn acc" data-a="fight" data-v="${z.id}">Kämpfen</button>`}</div>${bossTxt}</div>`}
+ return h}
+
+function rProfil(){let h='<h2>Fähigkeiten</h2><div class="card">';
+ for(const sk in SK)h+=`<div class="sk"><div class="row"><b>${SK[sk][1]} ${SK[sk][0]}</b><span class="mut sm" data-b="xpt:${sk}"></span></div><div class="bar xp"><div class="fill" data-w="xp:${sk}"></div></div></div>`;
+ h+='</div><h2>Ausrüstung</h2><div class="card">';const w=weapon(),ar=armor();
+ h+=`<div>⚔️ <b>${w.n}</b> <span class="mut sm">${w.min}–${w.max} Schaden</span></div><div style="margin-top:6px">🛡️ <b>${S.eq.ruestung?ar.n:'Keine Rüstung'}</b> <span class="mut sm">${ar.def} Rüstung, +${ar.hp} HP</span></div><div style="margin-top:6px" class="mut sm">Werkzeuge: ${['rucksack','brecheisen','gasmaske','lampe','geiger'].filter(t=>S.owned[t]).map(t=>IT[t].i+' '+IT[t].n).join(', ')||'keine'}</div></div>`;
+ let sc=0,kl=0;for(const k in S.stats.scav)sc+=S.stats.scav[k];for(const k in S.stats.kills)kl+=S.stats.kills[k];
+ h+=`<h2>Statistik</h2><div class="grid2"><div class="stat"><span class="mut sm">Plünderzüge</span><b>${fmt(sc)}</b></div><div class="stat"><span class="mut sm">Gegner besiegt</span><b>${fmt(kl)}</b></div><div class="stat"><span class="mut sm">Bosse besiegt</span><b>${Object.keys(S.stats.boss).length}/4</b></div><div class="stat"><span class="mut sm">Tode</span><b>${S.stats.deaths}</b></div><div class="stat"><span class="mut sm">Überfälle abgewehrt</span><b>${S.stats.raidsWon}</b></div><div class="stat"><span class="mut sm">Überfälle verloren</span><b>${S.stats.raidsLost}</b></div></div>`;
+ h+=`<h2>Tagebuch</h2><div class="card logl" data-b="log"></div>`;
+ h+=`<h2>Spielstand</h2><div class="card"><div class="mut sm">Wird automatisch in diesem Browser gespeichert.</div><div class="row"><button class="btn red" data-a="reset">Spielstand löschen</button></div></div>`;
+ return h}
+
+const BIND={
+ rates:()=>{const r=rates();const ks=Object.keys(r);let s=ks.length?'<div class="rates">'+ks.map(k=>`<span class="c" style="color:${r[k]<0?'var(--bad)':'var(--good)'}">${R[k][1]} ${r[k]>0?'+':''}${dec(r[k])}/s</span>`).join('')+'</div>':'<div class="mut sm">Noch keine Produktion. Baue Wasserfilter und Garten oder nimm Überlebende auf.</div>';
+  if(S.starving)s+='<div class="warn">⚠️ Wasser oder Nahrung ist alle – deine Leute arbeiten nur noch mit halber Kraft!</div>';return s},
+ raid:()=>mmss(S.raidT),def:()=>`${defense()} / ~${raidPower()}`,
+ phpT:()=>`${Math.ceil(S.hp)} / ${maxHp()}`,
+ eN:()=>{const a=S.act;return a&&a.ek?EN[a.ek].i+' '+EN[a.ek].n:'<span class="mut">…</span>'},
+ ehT:()=>{const a=S.act;return a&&a.ek?`${Math.max(0,Math.ceil(a.eh))} / ${EN[a.ek].hp}`:'suche Gegner'},
+ flog:()=>S.act&&S.act.fl?S.act.fl.map(l=>`<div>${l}</div>`).join(''):'',
+ cnt:k=>fmt(S.res[k]),
+ xpt:sk=>{const l=lvl(sk);return l>=99?`Level ${l}`:`Level ${l} · ${fmt(S.xp[sk]-XPT[l])}/${fmt(XPT[l+1]-XPT[l])} XP`},
+ log:()=>S.log.length?S.log.slice(0,30).map(l=>`<div class="${l.c}">${l.m}</div>`).join(''):'<div class="mut">Noch keine Einträge.</div>',
+};
+const WBIND={
+ php:()=>S.hp/maxHp(),
+ ehp:()=>{const a=S.act;return a&&a.ek?Math.max(0,a.eh)/EN[a.ek].hp:0},
+ xp:sk=>{const l=lvl(sk);return l>=99?1:(S.xp[sk]-XPT[l])/(XPT[l+1]-XPT[l])},
+};
+const cache=new WeakMap();
+function setH(el,h){if(cache.get(el)!==h){cache.set(el,h);el.innerHTML=h}}
+function upd(){
+ const show=Object.keys(R).filter(k=>S.res[k]>=1||['schrott','wasser','nahrung'].includes(k));
+ setH($('#res'),show.map(k=>`<span class="chip">${R[k][1]} ${fmt(S.res[k])}</span>`).join(''));
+ const m=maxHp();$('#hpf').style.width=(100*S.hp/m)+'%';$('#hpt').textContent=`❤️ ${Math.ceil(S.hp)}/${m}`;
+ const a=S.act;let L='💤 Untätig',Sx='Wähle eine Aktion: Plündern, Bauen oder Kämpfen',p=0;
+ if(a&&a.type==='scav'){const z=ZS.find(x=>x.id===a.id);L=`🔦 Plündert: ${z.n}`;Sx=a.last?'Zuletzt: '+a.last:'Suche nach Brauchbarem…';p=a.p/scavDur(z)}
+ else if(a&&a.type==='craft'){const r=IT[a.id];L=`🔧 Baut: ${r.n}`;Sx=r.gives?`${a.n||0}× hergestellt`:'Einzelanfertigung';p=a.p/r.t}
+ else if(a&&a.type==='fight'){const z=FZ.find(x=>x.id===a.id);L=`⚔️ Kämpft: ${z.n}`;Sx=a.ek?`${EN[a.ek].i} ${EN[a.ek].n} – ${Math.max(0,Math.ceil(a.eh))} HP`:'Suche Gegner…';p=a.ek?Math.max(0,a.eh)/EN[a.ek].hp:0}
+ setH($('#actL'),L);setH($('#actS'),Sx);$('#actB').style.width=(100*Math.min(1,p))+'%';$('#actX').style.display=a?'':'none';
+ document.querySelectorAll('[data-b]').forEach(el=>{const [k,arg]=el.dataset.b.split(':');if(BIND[k])setH(el,BIND[k](arg))});
+ document.querySelectorAll('[data-w]').forEach(el=>{const [k,arg]=el.dataset.w.split(':');el.style.width=(100*Math.min(1,Math.max(0,WBIND[k](arg))))+'%'});
+ document.querySelectorAll('[data-ck]').forEach(el=>el.classList.toggle('no',S.res[el.dataset.ck]<+el.dataset.cv));
+ document.querySelectorAll('[data-cost]').forEach(el=>{el.disabled=!canPay(JSON.parse(el.dataset.cost))});
+ const nd=$('#nav [data-v="basis"] .dot');if(nd)nd.style.display=S._qd?'':'none';}
+function render(){
+ $('#nav').innerHTML=TABS.map(([id,i,n])=>`<button data-a="tab" data-v="${id}" class="${S.tab===id?'act':''}"><span>${i}</span>${n}${id==='basis'?'<i class="dot" style="display:none"></i>':''}</button>`).join('');
+ $('#main').innerHTML=({basis:rBasis,scav:rScav,craft:rCraft,fight:rFight,profil:rProfil}[S.tab]||rBasis)();upd()}
+function modal(h){$('#mbox').innerHTML=h+'<div class="row"><span></span><button class="btn acc" data-a="modal">Weiter</button></div>';$('#modal').classList.remove('hidden')}
+
+// ================= START =================
+load();
+if(S.act&&S.act.type==='fight')S.act=null;
+(function offline(){const el=Math.min(8*3600,(Date.now()-S.last)/1000);if(el<30)return;const before=Object.assign({},S.res);
+ for(let t=0;t<el;t+=1)tick(Math.min(1,el-t),true);
+ const g={};for(const k in S.res){const d=Math.floor(S.res[k]-before[k]);if(d>0)g[k]=d}
+ const hrs=el>=3600?`${Math.floor(el/3600)} Std. ${Math.floor(el%3600/60)} Min.`:`${Math.floor(el/60)} Min.`;
+ modal(`<h3>Willkommen zurück</h3><p class="mut">Du warst ${hrs} weg. In der Zwischenzeit:</p><p style="font-size:16px">${lootStr(g)}</p>`)})();
+render();
+let lastT=Date.now();
+setInterval(()=>{const now=Date.now();let dt=Math.min((now-lastT)/1000,8*3600);lastT=now;
+ while(dt>0){const s=Math.min(dt>60?1:.25,dt);tick(s,dt>60);dt-=s}
+ checkQuest();if(dirty){dirty=false;render()}else upd();
+ if(now-S.last>10000)save()},200);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+window.addEventListener('pagehide',save);
+</script>
+</body>
+</html>
