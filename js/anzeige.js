@@ -8,7 +8,7 @@ function item(icon,title,lvTxt,desc,bottom,cls=''){return `<div class="card ${cl
 
 function rBasis(){let h='';const q=Q[S.q];
  if(q){const d=q.c();h+=`<div class="card quest"><div class="qh">📜 Auftrag ${S.q+1}/${Q.length}: <b>${q.t}</b></div><p class="mut">${q.s}</p><div class="goal">${d?'✅':'⬜'} ${q.g}</div><div class="row"><span class="mut sm">Belohnung: ${lootStr(q.r)}</span>${d?'<button class="btn acc" data-a="claim">Abholen</button>':''}</div></div>`}
- else h+=`<div class="card quest"><div class="goal">🏆 Alle Aufträge erledigt!</div><p class="mut">Der Koloss ist gefallen. Das Ödland gehört dir – aber es ist noch längst nicht leer. Bau weiter, sammle weiter, überlebe.</p></div>`;
+ else h+=`<div class="card quest"><div class="goal">🏆 Alle Aufträge erledigt!</div><p class="mut">Die Urmutter ist tot. Zum ersten Mal seit dem Fall wächst am Rand des Kraters wieder Gras. Das Ödland gehört dir – jag weiter nach legendären Fundstücken, bring deine Fähigkeiten auf Level 99 und bau deine Basis aus.</p></div>`;
  h+=`<div class="card"><h3>Versorgung</h3><div data-b="rates"></div></div>`;
  h+='<h2>Unterschlupf</h2>';
  for(const id in BU){const B=BU[id],l=lv(id),mx=B.max&&l>=B.max;
@@ -31,16 +31,16 @@ function rScav(){let h=`<h2>Plünderziele</h2><div class="mut sm" style="margin:
   h+=item(z.i,z.n,'',info,on?'<span class="sm" style="color:var(--acc)">● Aktiv</span><button class="btn" data-a="stop">Stopp</button>':`<span></span><button class="btn acc" data-a="scav" data-v="${z.id}">Plündern</button>`,on?'on':'')}
  return h}
 
-function rCraft(){let h='';const sec=[['waffe','Waffen'],['ruestung','Rüstungen'],['tool','Werkzeuge'],['verbr','Verbrauchsgüter']];
+function rCraft(){let h='';const sec=[['waffe','Waffen'],['ruestung','Rüstungen'],['mod','Waffen-Mods'],['tool','Werkzeuge'],['verbr','Verbrauchsgüter']];
  if(!lv('werkbank'))return '<h2>Werkbank</h2><div class="card">🔒 Du brauchst zuerst eine <b>Werkbank</b>. Baue sie im Tab <b>Basis</b>.</div>';
  for(const [typ,title] of sec){h+=`<h2>${title}</h2>`;
   for(const id in IT){const r=IT[id];if(r.typ!==typ)continue;
-   let desc=typ==='waffe'?`⚔️ ${r.min}–${r.max} Schaden · ${dec(r.spd,1)} s${r.ammo?' · verbraucht 🔸':''}`:typ==='ruestung'?`🛡️ ${r.def} Rüstung · ❤️ +${r.hp} HP`:typ==='tool'?r.d:`ergibt ${lootStr(r.gives)} · ${r.t} s`;
+   let desc=typ==='waffe'?`⚔️ ${r.min}–${r.max} Schaden · ${dec(r.spd,1)} s${r.ammo?' · verbraucht 🔸':''}`:typ==='ruestung'?`🛡️ ${r.def} Rüstung · ❤️ +${r.hp} HP`:typ==='tool'||typ==='mod'?r.d:`ergibt ${lootStr(r.gives)} · ${r.t} s`;
    const lock=lvl('handwerk')<r.lvl||lv('werkbank')<r.wb;
    if(lock){h+=item(r.i,r.n,'',desc,`<span class="mut sm">🔒 Handwerk ${r.lvl} · Werkbank ${r.wb}</span>`,'lock');continue}
    const on=S.act&&S.act.type==='craft'&&S.act.id===id;let bot;
    if(on)bot=`<span class="sm" style="color:var(--acc)">● Wird gebaut${r.gives?' (wiederholt)':''}</span><button class="btn" data-a="stop">Stopp</button>`;
-   else if(S.owned[id]){bot=typ==='tool'?'<span class="g sm">✓ Im Besitz</span>':S.eq[typ]===id?'<span class="g sm">✓ Ausgerüstet</span>':`<span class="mut sm">Im Besitz</span><button class="btn" data-a="equip" data-v="${id}">Ausrüsten</button>`}
+   else if(S.owned[id]){bot=typ==='mod'?'<span class="g sm">✓ Eingebaut</span>':typ==='tool'?'<span class="g sm">✓ Im Besitz</span>':S.eq[typ]===id?'<span class="g sm">✓ Ausgerüstet</span>':`<span class="mut sm">Im Besitz</span><button class="btn" data-a="equip" data-v="${id}">Ausrüsten</button>`}
    else bot=`${costHtml(r.cost)}<button class="btn acc" data-a="craft" data-v="${id}" ${cAttr(r.cost)}>${r.gives?'Herstellen':'Bauen'}</button>`;
    h+=item(r.i,r.n,r.gives?'':`${r.t} s`,desc,bot,on?'on':'')}}
  return h}
@@ -48,7 +48,7 @@ function rCraft(){let h='';const sec=[['waffe','Waffen'],['ruestung','Rüstungen
 function rFight(){let h='';const a=S.act&&S.act.type==='fight'?S.act:null;
  if(a){const z=FZ.find(x=>x.id===a.id);h+=`<h2>${z.i} ${z.n}</h2><div class="card arena"><div class="fighters"><div class="fighter"><div class="portrait">🧍</div><div class="nm">Du</div><div class="bar red"><div class="fill" data-w="php"></div></div><div class="sm mut" data-b="phpT"></div></div><div class="vs">VS</div><div class="fighter gegner"><div class="portrait" data-b="eI"></div><div class="nm" data-b="eN"></div><div class="bar red"><div class="fill" data-w="ehp"></div></div><div class="sm mut" data-b="ehT"></div></div></div><div class="flog" data-b="flog"></div>
  <div class="row"><button class="btn sm" data-a="heal" data-v="verband" ${cAttr({verband:1})}>🩹 <span data-b="cnt:verband"></span></button><button class="btn sm" data-a="heal" data-v="medkit" ${cAttr({medkit:1})}>💊 <span data-b="cnt:medkit"></span></button><button class="btn red sm" data-a="stop">Fliehen</button></div></div>`}
- h+=`<div class="card" style="padding:10px 12px"><div class="tog" data-a="auto"><span class="sw ${S.autoHeal?'on':''}"></span>Automatisch heilen (unter 35 % HP)</div><div class="mut sm" style="margin-top:6px">Waffe: <b>${weapon().n}</b> · Rüstung: <b>${S.eq.ruestung?IT[S.eq.ruestung].n:'keine'}</b> · 🔸 <span data-b="cnt:munition"></span></div></div>`;
+ h+=`<div class="card" style="padding:10px 12px"><div class="tog" data-a="auto"><span class="sw ${S.autoHeal?'on':''}"></span>Automatisch heilen (unter 35 % HP)</div><div class="mut sm" style="margin-top:6px">Waffe: <b>${weapon().n}</b> · Rüstung: <b>${armor().n}</b> · 🔸 <span data-b="cnt:munition"></span></div></div>`;
  h+='<h2>Kampfgebiete</h2>';
  for(const z of FZ){const ok=zoneOpen(z,'kampf'),on=a&&a.id===z.id;const en=z.en.map(k=>EN[k].i+' '+EN[k].n).join(', ');
   if(!ok){h+=item(z.i,z.n,'',en,`<span class="mut sm">🔒 Kampf-Level ${z.lvl}${z.need&&!S.owned[z.need]?' + '+IT[z.need].n:''}</span>`,'lock');continue}
@@ -60,9 +60,10 @@ function rFight(){let h='';const a=S.act&&S.act.type==='fight'?S.act:null;
 function rProfil(){let h='<h2>Fähigkeiten</h2><div class="card">';
  for(const sk in SK)h+=`<div class="sk"><div class="row"><b>${SK[sk][1]} ${SK[sk][0]}</b><span class="mut sm" data-b="xpt:${sk}"></span></div><div class="bar xp"><div class="fill" data-w="xp:${sk}"></div></div></div>`;
  h+='</div><h2>Ausrüstung</h2><div class="card">';const w=weapon(),ar=armor();
- h+=`<div>⚔️ <b>${w.n}</b> <span class="mut sm">${w.min}–${w.max} Schaden</span></div><div style="margin-top:6px">🛡️ <b>${S.eq.ruestung?ar.n:'Keine Rüstung'}</b> <span class="mut sm">${ar.def} Rüstung, +${ar.hp} HP</span></div><div style="margin-top:6px" class="mut sm">Werkzeuge: ${['rucksack','brecheisen','gasmaske','lampe','geiger'].filter(t=>S.owned[t]).map(t=>IT[t].i+' '+IT[t].n).join(', ')||'keine'}</div></div>`;
+ h+=`<div>⚔️ <b>${w.n}</b> <span class="mut sm">${w.min}–${w.max} Schaden</span></div><div style="margin-top:6px">🛡️ <b>${ar.n}</b> <span class="mut sm">${ar.def} Rüstung, +${ar.hp} HP</span></div><div style="margin-top:6px" class="mut sm">Werkzeuge: ${Object.keys(IT).filter(t=>IT[t].typ==='tool'&&S.owned[t]).map(t=>IT[t].i+' '+IT[t].n).join(', ')||'keine'}</div><div style="margin-top:6px" class="mut sm">Waffen-Mods: ${Object.keys(IT).filter(t=>IT[t].typ==='mod'&&S.owned[t]).map(t=>IT[t].i+' '+IT[t].n).join(', ')||'keine'}</div></div>`;
+ h+=fundBereich();
  let sc=0,kl=0;for(const k in S.stats.scav)sc+=S.stats.scav[k];for(const k in S.stats.kills)kl+=S.stats.kills[k];
- h+=`<h2>Statistik</h2><div class="grid2"><div class="stat"><span class="mut sm">Plünderzüge</span><b>${fmt(sc)}</b></div><div class="stat"><span class="mut sm">Gegner besiegt</span><b>${fmt(kl)}</b></div><div class="stat"><span class="mut sm">Bosse besiegt</span><b>${Object.keys(S.stats.boss).length}/4</b></div><div class="stat"><span class="mut sm">Tode</span><b>${S.stats.deaths}</b></div><div class="stat"><span class="mut sm">Überfälle abgewehrt</span><b>${S.stats.raidsWon}</b></div><div class="stat"><span class="mut sm">Überfälle verloren</span><b>${S.stats.raidsLost}</b></div></div>`;
+ h+=`<h2>Statistik</h2><div class="grid2"><div class="stat"><span class="mut sm">Plünderzüge</span><b>${fmt(sc)}</b></div><div class="stat"><span class="mut sm">Gegner besiegt</span><b>${fmt(kl)}</b></div><div class="stat"><span class="mut sm">Bosse besiegt</span><b>${Object.keys(S.stats.boss).length}/${Object.keys(EN).filter(k=>EN[k].boss).length}</b></div><div class="stat"><span class="mut sm">Tode</span><b>${S.stats.deaths}</b></div><div class="stat"><span class="mut sm">Überfälle abgewehrt</span><b>${S.stats.raidsWon}</b></div><div class="stat"><span class="mut sm">Überfälle verloren</span><b>${S.stats.raidsLost}</b></div></div>`;
  h+=`<h2>Tagebuch</h2><div class="card logl" data-b="log"></div>`;
  h+=appBereich();
  h+=`<h2>Spielstand</h2><div class="card"><div class="mut sm">Wird automatisch in diesem Browser gespeichert.</div><div class="row"><button class="btn red" data-a="reset">Spielstand löschen</button></div></div>`;

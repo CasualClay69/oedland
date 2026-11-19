@@ -22,7 +22,7 @@ function doCraft(dt,off){const a=S.act,r=IT[a.id];
  if(!a.paid){if(!canPay(r.cost)){if(!off)toast('Nicht genug Material.','bad');S.act=null;markDirty();return}pay(r.cost);a.paid=true}
  a.p+=dt;if(a.p<r.t)return;a.p=0;a.paid=false;S.stats.crafted[a.id]=(S.stats.crafted[a.id]||0)+1;gainXp('handwerk',r.xp,off);
  if(r.gives){give(r.gives);a.n=(a.n||0)+1}
- else{S.owned[a.id]=1;if(r.typ==='waffe'||r.typ==='ruestung')S.eq[r.typ]=a.id;S.act=null;msg(`${r.i} ${r.n} fertig${r.typ==='tool'?'':' und ausgerüstet'}!`,'good');markDirty()}}
+ else{S.owned[a.id]=1;if(r.typ==='waffe'||r.typ==='ruestung')S.eq[r.typ]=a.id;S.act=null;msg(`${r.i} ${r.n} ${r.typ==='mod'?'eingebaut':'fertig'}${r.typ==='waffe'||r.typ==='ruestung'?' und ausgerüstet':''}!`,'good');markDirty()}}
 
 function startFight(id,boss){S.act={type:'fight',id,ek:null,eh:0,pt:0,et:0,w:.6,boss:!!boss,fl:[]};render()}
 function flog(m){const a=S.act;if(!a||a.type!=='fight')return;a.fl.unshift(m);if(a.fl.length>6)a.fl.length=6}
@@ -32,15 +32,19 @@ function autoHeal(){if(!S.autoHeal)return;const m=maxHp();if(S.hp>=m*.35)return;
  if(S.res.medkit>0&&(m-S.hp>vh*2||S.res.verband<1))heal('medkit');else if(S.res.verband>0)heal('verband');else heal('medkit')}
 function doFight(dt){const a=S.act;if(!a.ek){a.w-=dt;if(a.w<=0)spawn();return}
  const e=EN[a.ek],w=weapon();a.pt+=dt;a.et+=dt;
- if(a.pt>=w.spd){a.pt-=w.spd;let mn=w.min,mx=w.max;
+ const wspd=w.spd*(S.owned.daempfer?.9:1);
+ if(a.pt>=wspd){a.pt-=wspd;let mn=w.min,mx=w.max;
   if(w.ammo){if(S.res.munition>=1)S.res.munition--;else{mn=2;mx=4;if(!a.na){flog('🔸 Keine Munition – Kolbenhieb!');a.na=1}}}
-  if(Math.random()<.9){const d=Math.max(1,Math.round(rnd(mn,mx)*(1+(lvl('kampf')-1)*.02)-e.def));a.eh-=d;flog(`Du triffst: −${d}`)}else flog('Du verfehlst.');
+  if(Math.random()<(S.owned.zielfernrohr?.98:.9)){const krit=S.owned.praezision&&Math.random()<.1;
+   const roh=rnd(mn,mx)*(1+(lvl('kampf')-1)*.02)*(S.owned.plasmaladung?1.15:1)*(krit?2:1);
+   const d=Math.max(1,Math.round(roh-e.def*(S.owned.panzerbrecher?.7:1)));a.eh-=d;flog(krit?`💥 Kritisch: −${d}`:`Du triffst: −${d}`)}else flog('Du verfehlst.');
   if(a.eh<=0){kill(a,e);return}}
  if(a.et>=e.spd){a.et-=e.spd;
   if(Math.random()<.8){const d=Math.max(1,Math.round(e.atk*(.8+Math.random()*.4)-armor().def));S.hp-=d;flog(`${e.n} trifft dich: −${d}`)}else flog(`${e.n} verfehlt.`);
   if(S.hp<=0){die(e);return}autoHeal()}}
 function kill(a,e){const k=a.ek,got={};for(const [r,mn,mx,c] of e.loot)if(Math.random()<c){const n=rnd(mn,mx);S.res[r]+=n;got[r]=(got[r]||0)+n}
  S.stats.kills[a.id]=(S.stats.kills[a.id]||0)+1;gainXp('kampf',e.xp);flog(`✔ ${e.n} besiegt! ${lootStr(got)}`);a.last=lootStr(got);
+ dropBeute(FZ.find(z=>z.id===a.id),!!e.boss);
  if(e.boss){S.stats.boss[k]=(S.stats.boss[k]||0)+1;a.boss=false;msg(`🏆 ${e.n} besiegt! ${lootStr(got)}`,'good');markDirty()}
  else if((S.stats.kills[a.id]===BOSS_KILLS)&&FZ.find(z=>z.id===a.id).boss){toast('⚠️ Ein Boss ist erschienen!','bad');markDirty()}
  a.ek=null;a.w=1}

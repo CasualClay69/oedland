@@ -14,6 +14,8 @@ function act(a,v,el){switch(a){
  case 'stop':S.act=null;render();break;
  case 'craft':S.act={type:'craft',id:v,p:0,paid:false};render();break;
  case 'equip':S.eq[IT[v].typ]=v;S.hp=Math.min(S.hp,maxHp());render();break;
+ case 'fausr':fundAusruesten(v);break;
+ case 'fzerl':fundZerlegen(v);break;
  case 'build':build(v);break;
  case 'recruit':recruit();break;
  case 'jobp':jobAdd(v,1);break;case 'jobm':jobAdd(v,-1);break;

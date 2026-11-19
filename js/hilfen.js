@@ -20,8 +20,10 @@ let dirty=false;const markDirty=()=>dirty=true;
 function log(m,c=''){S.log.unshift({m,c,t:Date.now()});if(S.log.length>60)S.log.length=60}
 function toast(m,c=''){const d=document.createElement('div');d.className='toast '+c;d.textContent=m;const T=$('#toasts');T.appendChild(d);while(T.children.length>3)T.firstChild.remove();setTimeout(()=>d.remove(),2800)}
 function msg(m,c){log(m,c);toast(m,c)}
-function weapon(){return S.eq.waffe?IT[S.eq.waffe]:{n:'Fäuste',min:1,max:3,spd:1.2}}
-function armor(){return S.eq.ruestung?IT[S.eq.ruestung]:{def:0,hp:0}}
+// Ausgerüstet ist entweder ein Bauplan ("laser") oder ein Fundstück ("u12", siehe beute.js)
+function ausruestung(id){if(!id)return null;if(id[0]==='u'){const f=fundstueck(id);return f?fundWerte(f):null}return IT[id]||null}
+function weapon(){return ausruestung(S.eq.waffe)||{n:'Fäuste',min:1,max:3,spd:1.2}}
+function armor(){return ausruestung(S.eq.ruestung)||{n:'Keine Rüstung',def:0,hp:0}}
 function maxHp(){return 60+(lvl('kampf')-1)*10+armor().hp}
 function gainXp(sk,n,off){const b=lvl(sk);S.xp[sk]+=n;const a=lvl(sk);if(a>b){log(`${SK[sk][1]} ${SK[sk][0]} erreicht Level ${a}!`,'g');if(!off)toast(`${SK[sk][1]} ${SK[sk][0]} Level ${a}!`,'good');markDirty()}}
 function bcost(id){const B=BU[id],l=lv(id);if(B.costs)return B.costs[l]||B.costs[B.costs.length-1];const o={};for(const k in B.cost)o[k]=Math.round(B.cost[k]*Math.pow(1.6,l));return o}
