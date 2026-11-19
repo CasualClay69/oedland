@@ -16,6 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="Ödland">
 <link rel="stylesheet" href="css/style.css">
 <script src="js/version.js" defer></script>
+<script src="js/splash.js" defer></script>
 <script src="js/daten.js" defer></script>
 <script src="js/zustand.js" defer></script>
 <script src="js/hilfen.js" defer></script>
@@ -26,6 +27,21 @@
 <script src="js/main.js" defer></script>
 </head>
 <body>
+<!-- Startbildschirm (3 Sekunden, siehe js/splash.js) -->
+<div id="splash" aria-hidden="true">
+  <div class="splashGlut"></div>
+  <div class="splashInhalt">
+    <div class="splashSymbol"><img src="icons/icon.svg" alt=""></div>
+    <div class="splashTitel">ÖDLAND</div>
+    <div class="splashUnter">Überleben nach dem Fall</div>
+    <div class="splashBalken"><div></div></div>
+    <div class="splashStatus" id="splashStatus">Geigerzähler wird kalibriert …</div>
+  </div>
+  <div class="splashFuss">
+    <div class="splashVon">Ein Spiel von Stefan R.</div>
+    <div class="splashVersion" id="splashVersion">Version</div>
+  </div>
+</div>
 <div id="staub" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 <header><div class="wrap">
   <div class="top"><h1>ÖDLAND</h1><div class="hp"><div class="bar red"><div id="hpf" class="fill"></div></div><span id="hpt"></span></div></div>
