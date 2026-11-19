@@ -46,7 +46,7 @@ function rCraft(){let h='';const sec=[['waffe','Waffen'],['ruestung','Rüstungen
  return h}
 
 function rFight(){let h='';const a=S.act&&S.act.type==='fight'?S.act:null;
- if(a){const z=FZ.find(x=>x.id===a.id);h+=`<h2>${z.i} ${z.n}</h2><div class="card arena"><div class="fighters"><div class="fighter"><div class="nm">🧍 Du</div><div class="bar red"><div class="fill" data-w="php"></div></div><div class="sm mut" data-b="phpT"></div></div><div class="vs">VS</div><div class="fighter"><div class="nm" data-b="eN"></div><div class="bar red"><div class="fill" data-w="ehp"></div></div><div class="sm mut" data-b="ehT"></div></div></div><div class="flog" data-b="flog"></div>
+ if(a){const z=FZ.find(x=>x.id===a.id);h+=`<h2>${z.i} ${z.n}</h2><div class="card arena"><div class="fighters"><div class="fighter"><div class="portrait">🧍</div><div class="nm">Du</div><div class="bar red"><div class="fill" data-w="php"></div></div><div class="sm mut" data-b="phpT"></div></div><div class="vs">VS</div><div class="fighter gegner"><div class="portrait" data-b="eI"></div><div class="nm" data-b="eN"></div><div class="bar red"><div class="fill" data-w="ehp"></div></div><div class="sm mut" data-b="ehT"></div></div></div><div class="flog" data-b="flog"></div>
  <div class="row"><button class="btn sm" data-a="heal" data-v="verband" ${cAttr({verband:1})}>🩹 <span data-b="cnt:verband"></span></button><button class="btn sm" data-a="heal" data-v="medkit" ${cAttr({medkit:1})}>💊 <span data-b="cnt:medkit"></span></button><button class="btn red sm" data-a="stop">Fliehen</button></div></div>`}
  h+=`<div class="card" style="padding:10px 12px"><div class="tog" data-a="auto"><span class="sw ${S.autoHeal?'on':''}"></span>Automatisch heilen (unter 35 % HP)</div><div class="mut sm" style="margin-top:6px">Waffe: <b>${weapon().n}</b> · Rüstung: <b>${S.eq.ruestung?IT[S.eq.ruestung].n:'keine'}</b> · 🔸 <span data-b="cnt:munition"></span></div></div>`;
  h+='<h2>Kampfgebiete</h2>';
@@ -72,7 +72,8 @@ const BIND={
   if(S.starving)s+='<div class="warn">⚠️ Wasser oder Nahrung ist alle – deine Leute arbeiten nur noch mit halber Kraft!</div>';return s},
  raid:()=>mmss(S.raidT),def:()=>`${defense()} / ~${raidPower()}`,
  phpT:()=>`${Math.ceil(S.hp)} / ${maxHp()}`,
- eN:()=>{const a=S.act;return a&&a.ek?EN[a.ek].i+' '+EN[a.ek].n:'<span class="mut">…</span>'},
+ eN:()=>{const a=S.act;return a&&a.ek?EN[a.ek].n:'<span class="mut">…</span>'},
+ eI:()=>{const a=S.act;return a&&a.ek?EN[a.ek].i:'❔'},
  ehT:()=>{const a=S.act;return a&&a.ek?`${Math.max(0,Math.ceil(a.eh))} / ${EN[a.ek].hp}`:'suche Gegner'},
  flog:()=>S.act&&S.act.fl?S.act.fl.map(l=>`<div>${l}</div>`).join(''):'',
  cnt:k=>fmt(S.res[k]),
